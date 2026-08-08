@@ -9,6 +9,8 @@ export const UserCreditsContext = createContext()
 export const UserCreditsProvider = ({ children }) => {
 
     const [credits, setCredits] = useState(5);
+    const [plan, setPlan] = useState('BASIC');
+    const [maxFileSizeMb, setMaxFileSizeMb] = useState(25);
     const [loading, setLoading] = useState(false);
     const { isAuthenticated } = useAuth();
 
@@ -25,6 +27,8 @@ export const UserCreditsProvider = ({ children }) => {
             const response = await axiosInstance.get(apiEndPoints.GET_CREDITS)
             if (response.status == 200) {
                 setCredits(response.data.credits);
+                setPlan(response.data.plan);
+                setMaxFileSizeMb(response.data.maxFileSizeMb);
 
 
             } else {
@@ -61,6 +65,8 @@ export const UserCreditsProvider = ({ children }) => {
 
         credits,
         setCredits,
+        plan,
+        maxFileSizeMb,
         fetchUserCredits,
         updateCredits
 

@@ -1,5 +1,5 @@
 export const BASE_URL =
-  import.meta.env.VITE_API_BASE_URL || 'https://cloudshare-backend-ny2d.onrender.com'
+  import.meta.env.VITE_API_BASE_URL || 'https://cloudshare-backend-ny2d.onrender.com/api/v1.0'
 
 const apiEndPoints = {
   // 🔐 Auth (replaces Clerk sign-in/sign-up/webhooks entirely)

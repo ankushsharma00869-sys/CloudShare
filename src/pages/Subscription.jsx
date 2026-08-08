@@ -13,11 +13,11 @@ const Subscription = () => {
   const [messageType, setMessageType] = useState("");
   const [razorpayLoaded, setRazorpayLoaded] = useState(false);
   const { user } = useAuth();
-  const { credits, setCredits, fetchUserCredits } = useContext(UserCreditsContext);
+  const { credits, setCredits, fetchUserCredits, plan } = useContext(UserCreditsContext);
 
   const plans = [
-    { id: "premium", name: "Premium", credits: 500, price: 500, recommended: false, icon: Zap, color: '#60a5fa', features: ["Upload up to 500 files", "Access to all basic features", "Priority support"] },
-    { id: "ultimate", name: "Ultimate", credits: 5000, price: 2500, recommended: true, icon: Crown, color: '#9d7fff', features: ["Upload up to 5000 files", "Access to all premium features", "Priority support", "Advanced analytics"] },
+    { id: "premium", name: "Premium", credits: 500, price: 500, recommended: false, icon: Zap, color: '#60a5fa', features: ["Upload up to 500 files", "Access to all basic features", "25MB max file size", "Priority support"] },
+    { id: "ultimate", name: "Ultimate", credits: 5000, price: 2500, recommended: true, icon: Crown, color: '#9d7fff', features: ["Upload up to 5000 files", "Access to all premium features", "200MB max file size 🔓", "Priority support", "Advanced analytics"] },
   ];
 
   useEffect(() => {
@@ -81,6 +81,9 @@ const Subscription = () => {
               <div style={{ fontSize: '13px', color: 'var(--text-muted)', marginBottom: '4px' }}>Current Balance</div>
               <div style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: '32px', fontWeight: 700, color: 'var(--accent-bright)' }}>{credits} <span style={{ fontSize: '16px', color: 'var(--text-secondary)', fontWeight: 400 }}>credits</span></div>
             </div>
+          </div>
+          <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '6px 14px', borderRadius: '100px', background: plan === 'ULTIMATE' ? 'var(--accent-dim)' : 'var(--bg-elevated)', border: '1px solid var(--border)', fontSize: '13px', fontWeight: 600, color: plan === 'ULTIMATE' ? 'var(--accent-bright)' : 'var(--text-secondary)' }}>
+            {plan === 'ULTIMATE' && <Crown size={13} />} {plan || 'BASIC'} plan
           </div>
         </div>
 
