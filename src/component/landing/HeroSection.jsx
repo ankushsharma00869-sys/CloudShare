@@ -102,7 +102,7 @@ const HeroSection = ({ openSignIn, openSignUp }) => (
             and control how they are shared.
           </p>
 
-          {/* Action buttons */}
+          {/* Buttons */}
           <div
             style={{
               display: 'flex',
@@ -111,6 +111,7 @@ const HeroSection = ({ openSignIn, openSignUp }) => (
               flexWrap: 'wrap',
             }}
           >
+            {/* Create account */}
             <button
               onClick={() => openSignUp()}
               style={{
@@ -125,7 +126,7 @@ const HeroSection = ({ openSignIn, openSignUp }) => (
                 fontSize: '15px',
                 fontWeight: 600,
                 cursor: 'pointer',
-                transition: `background var(--duration) var(--ease)`,
+                transition: 'background var(--duration) var(--ease)',
               }}
               onMouseEnter={(e) => {
                 e.currentTarget.style.background =
@@ -139,6 +140,7 @@ const HeroSection = ({ openSignIn, openSignUp }) => (
               <ArrowRight size={16} />
             </button>
 
+            {/* Sign in */}
             <button
               onClick={() => openSignIn()}
               style={{
@@ -150,7 +152,7 @@ const HeroSection = ({ openSignIn, openSignUp }) => (
                 fontSize: '15px',
                 fontWeight: 600,
                 cursor: 'pointer',
-                transition: `background var(--duration) var(--ease)`,
+                transition: 'background var(--duration) var(--ease)',
               }}
               onMouseEnter={(e) => {
                 e.currentTarget.style.background =
