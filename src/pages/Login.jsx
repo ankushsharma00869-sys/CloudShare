@@ -47,11 +47,11 @@ const Login = () => {
           <div style={{ width: '36px', height: '36px', borderRadius: '10px', background: 'var(--accent)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <Share2Icon size={18} color="#fff" />
           </div>
-          <span style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: '20px', fontWeight: 700, color: 'var(--text-primary)' }}>CloudShare</span>
+          <span style={{ fontFamily: "'Manrope', sans-serif", fontSize: '20px', fontWeight: 700, color: 'var(--text-primary)' }}>CloudShare</span>
         </div>
 
         <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: '20px', padding: '32px' }}>
-          <h1 style={{ fontSize: '22px', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '4px', fontFamily: "'Space Grotesk', sans-serif" }}>Welcome back</h1>
+          <h1 style={{ fontSize: '22px', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '4px', fontFamily: "'Manrope', sans-serif" }}>Welcome back</h1>
           <p style={{ fontSize: '14px', color: 'var(--text-secondary)', marginBottom: '24px' }}>Log in to access your files</p>
 
           {error && (
