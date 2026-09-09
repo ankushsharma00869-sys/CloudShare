@@ -134,7 +134,7 @@ function MyFiles() {
       <div style={{ padding: '32px 24px' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '28px', flexWrap: 'wrap', gap: '12px' }}>
           <div>
-            <h2 style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: '28px', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '6px' }}>My Files</h2>
+            <h2 style={{ fontFamily: "'Manrope', sans-serif", fontSize: '28px', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '6px' }}>My Files</h2>
             <p style={{ fontSize: '14px', color: 'var(--text-muted)' }}>
               {hasSearched ? `${files.length} result${files.length !== 1 ? 's' : ''} for "${searchQuery}"` : `${files.length} file${files.length !== 1 ? 's' : ''}`}
             </p>
