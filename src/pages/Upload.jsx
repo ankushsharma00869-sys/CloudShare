@@ -57,7 +57,7 @@ const Upload = () => {
       <div style={{ padding: '32px 24px' }}>
         <div style={{ marginBottom: '10px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '10px' }}>
           <div>
-            <h1 style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: '28px', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '6px' }}>Upload Files</h1>
+            <h1 style={{ fontFamily: "'Manrope', sans-serif", fontSize: '28px', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '6px' }}>Upload Files</h1>
             <p style={{ fontSize: '15px', color: 'var(--text-secondary)' }}>Upload and manage your files securely</p>
           </div>
           {/* 🔒 Plan-gated perk indicator */}
