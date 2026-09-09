@@ -75,7 +75,7 @@ const Profile = () => {
     <DashboardLayout activeMenu="Profile">
       <div style={{ padding: '32px 24px', maxWidth: '640px' }}>
         <div style={{ marginBottom: '28px' }}>
-          <h1 style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: '28px', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '6px' }}>Profile Settings</h1>
+          <h1 style={{ fontFamily: "'Manrope', sans-serif", fontSize: '28px', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '6px' }}>Profile Settings</h1>
           <p style={{ fontSize: '15px', color: 'var(--text-secondary)' }}>Update your name, email, and profile photo</p>
         </div>
 
