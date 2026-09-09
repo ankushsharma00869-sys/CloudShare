@@ -27,15 +27,15 @@ const Navbar = ({ activeMenu }) => {
     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '20px', background: 'var(--bg-surface)', borderBottom: '1px solid var(--border)', backdropFilter: 'blur(20px)', padding: '14px 24px', position: 'sticky', top: 0, zIndex: 30 }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
         <button onClick={() => setOpenSidemenu(!openSideMenu)}
-          style={{ display: 'none', background: 'var(--bg-elevated)', border: '1px solid var(--border)', borderRadius: '8px', padding: '8px', color: 'var(--text-primary)', cursor: 'pointer' }}
+          style={{ display: 'none', background: 'var(--bg-elevated)', border: '1px solid var(--border)', borderRadius: 'var(--radius-sm)', padding: '8px', color: 'var(--text-primary)', cursor: 'pointer' }}
           className="mobile-menu-btn">
           {openSideMenu ? <XIcon size={20} /> : <MenuIcon size={20} />}
         </button>
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-          <div style={{ width: '32px', height: '32px', borderRadius: '8px', background: 'var(--accent)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <div style={{ width: '32px', height: '32px', borderRadius: 'var(--radius-btn)', background: 'var(--accent)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <Share2Icon size={16} color='#fff' />
           </div>
-          <span style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: '18px', fontWeight: 700, color: 'var(--text-primary)' }}>CloudShare</span>
+          <span style={{ fontSize: '18px', fontWeight: 700, color: 'var(--text-primary)' }}>CloudShare</span>
         </div>
       </div>
 
@@ -60,7 +60,7 @@ const Navbar = ({ activeMenu }) => {
             </button>
 
             {openUserMenu && (
-              <div style={{ position: 'absolute', right: 0, top: '46px', background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: '12px', minWidth: '180px', boxShadow: '0 12px 40px rgba(0,0,0,0.4)', overflow: 'hidden', zIndex: 40 }}>
+              <div style={{ position: 'absolute', right: 0, top: '46px', background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: 'var(--radius-card)', minWidth: '180px', boxShadow: '0 12px 28px rgba(0,0,0,0.35)', overflow: 'hidden', zIndex: 40 }}>
                 <div style={{ padding: '12px 14px', borderBottom: '1px solid var(--border)' }}>
                   <div style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-primary)' }}>{user?.firstName} {user?.lastName}</div>
                   <div style={{ fontSize: '12px', color: 'var(--text-muted)', overflow: 'hidden', textOverflow: 'ellipsis' }}>{user?.email}</div>
