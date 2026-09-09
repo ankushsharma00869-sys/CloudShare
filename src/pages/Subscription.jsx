@@ -61,7 +61,7 @@ const Subscription = () => {
     <DashboardLayout activeMenu="Subscription">
       <div style={{ padding: '32px 24px' }}>
         <div style={{ marginBottom: '32px' }}>
-          <h1 style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: '28px', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '6px' }}>Subscription Plans</h1>
+          <h1 style={{ fontFamily: "'Manrope', sans-serif", fontSize: '28px', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '6px' }}>Subscription Plans</h1>
           <p style={{ fontSize: '15px', color: 'var(--text-secondary)' }}>Choose the plan that fits your workflow</p>
         </div>
 
@@ -79,7 +79,7 @@ const Subscription = () => {
             </div>
             <div>
               <div style={{ fontSize: '13px', color: 'var(--text-muted)', marginBottom: '4px' }}>Current Balance</div>
-              <div style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: '32px', fontWeight: 700, color: 'var(--accent-bright)' }}>{credits} <span style={{ fontSize: '16px', color: 'var(--text-secondary)', fontWeight: 400 }}>credits</span></div>
+              <div style={{ fontFamily: "'Manrope', sans-serif", fontSize: '32px', fontWeight: 700, color: 'var(--accent-bright)' }}>{credits} <span style={{ fontSize: '16px', color: 'var(--text-secondary)', fontWeight: 400 }}>credits</span></div>
             </div>
           </div>
           <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '6px 14px', borderRadius: '100px', background: plan === 'ULTIMATE' ? 'var(--accent-dim)' : 'var(--bg-elevated)', border: '1px solid var(--border)', fontSize: '13px', fontWeight: 600, color: plan === 'ULTIMATE' ? 'var(--accent-bright)' : 'var(--text-secondary)' }}>
@@ -104,7 +104,7 @@ const Subscription = () => {
                   <h3 style={{ fontSize: '20px', fontWeight: 700, color: 'var(--text-primary)' }}>{plan.name}</h3>
                 </div>
                 <div style={{ marginBottom: '8px' }}>
-                  <span style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: '44px', fontWeight: 700, color: plan.recommended ? 'var(--accent-bright)' : 'var(--text-primary)' }}>₹{plan.price}</span>
+                  <span style={{ fontFamily: "'Manrope', sans-serif", fontSize: '44px', fontWeight: 700, color: plan.recommended ? 'var(--accent-bright)' : 'var(--text-primary)' }}>₹{plan.price}</span>
                 </div>
                 <div style={{ fontSize: '14px', color: 'var(--text-muted)', marginBottom: '24px' }}>{plan.credits.toLocaleString()} credits included</div>
                 <ul style={{ listStyle: 'none', padding: 0, marginBottom: '28px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
