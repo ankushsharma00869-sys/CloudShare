@@ -1,4 +1,3 @@
-```jsx
 import React from 'react';
 import {
   Upload,
@@ -171,4 +170,3 @@ const TestimonialSection = () => {
 };
 
 export default TestimonialSection;
-```
