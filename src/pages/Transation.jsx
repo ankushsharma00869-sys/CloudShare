@@ -29,7 +29,7 @@ const Transation = () => {
     <DashboardLayout activeMenu="Transactions">
       <div style={{ padding: '32px 24px' }}>
         <div style={{ marginBottom: '32px' }}>
-          <h1 style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: '28px', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '6px' }}>Transaction History</h1>
+          <h1 style={{ fontFamily: "'Manrope', sans-serif", fontSize: '28px', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '6px' }}>Transaction History</h1>
           <p style={{ fontSize: '15px', color: 'var(--text-secondary)' }}>All your credit purchases in one place</p>
         </div>
 
@@ -72,7 +72,7 @@ const Transation = () => {
                     <td style={{ padding: '16px 20px', fontSize: '14px', color: 'var(--text-primary)', fontWeight: 500 }}>
                       {txn.planId === "premium" ? "Premium Plan" : txn.planId === "ultimate" ? "Ultimate Plan" : "Basic Plan"}
                     </td>
-                    <td style={{ padding: '16px 20px', fontSize: '15px', fontWeight: 700, color: 'var(--text-primary)', fontFamily: "'Space Grotesk', sans-serif" }}>{formatAmount(txn.amount)}</td>
+                    <td style={{ padding: '16px 20px', fontSize: '15px', fontWeight: 700, color: 'var(--text-primary)', fontFamily: "'Manrope', sans-serif" }}>{formatAmount(txn.amount)}</td>
                     <td style={{ padding: '16px 20px' }}>
                       <div style={{ display: 'inline-flex', alignItems: 'center', gap: '5px', background: 'var(--accent-dim)', border: '1px solid var(--accent)', borderRadius: '8px', padding: '4px 10px', fontSize: '13px', fontWeight: 600, color: 'var(--accent-bright)' }}>
                         <Zap size={12} fill='var(--accent-bright)' />+{txn.creditsAdded}
