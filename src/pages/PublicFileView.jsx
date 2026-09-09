@@ -61,7 +61,7 @@ const PublicFileView = () => {
           <div style={{ width: '32px', height: '32px', borderRadius: '8px', background: 'var(--accent)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <Share2 size={16} color='#fff' />
           </div>
-          <span style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: '18px', fontWeight: 700, color: 'var(--text-primary)' }}>CloudShare</span>
+          <span style={{ fontFamily: "'Manrope', sans-serif", fontSize: '18px', fontWeight: 700, color: 'var(--text-primary)' }}>CloudShare</span>
         </div>
         <button onClick={() => setShareModal(true)} style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '9px 18px', background: 'var(--accent)', border: 'none', borderRadius: '10px', color: '#fff', fontSize: '14px', fontWeight: 600, cursor: 'pointer' }}>
           <Share2 size={15} /> Share
