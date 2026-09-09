@@ -88,6 +88,7 @@ const TestimonialSection = () => {
               color: 'var(--text-secondary)',
               lineHeight: 1.6,
               marginTop: 'var(--space-4)',
+              marginBottom: 0,
             }}
           >
             CloudShare keeps file management simple, from uploading and
@@ -115,8 +116,6 @@ const TestimonialSection = () => {
                   border: '1px solid var(--border)',
                   borderRadius: 'var(--radius-lg)',
                   padding: 'var(--space-8)',
-                  transition:
-                    'border-color var(--duration) var(--ease)',
                 }}
               >
                 {/* Icon */}
