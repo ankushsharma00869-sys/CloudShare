@@ -1,4 +1,3 @@
-```jsx
 import React from 'react';
 import { assests } from '../../assets/assets';
 import { ArrowRight, Link2 } from 'lucide-react';
@@ -194,4 +193,4 @@ const HeroSection = ({ openSignIn, openSignUp }) => (
 );
 
 export default HeroSection;
-```
+
