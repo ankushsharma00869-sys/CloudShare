@@ -12,7 +12,7 @@ const StatCard = ({ icon: Icon, label, value, color }) => (
       <Icon size={22} color={color} />
     </div>
     <div>
-      <div style={{ fontSize: '24px', fontWeight: 700, color: 'var(--text-primary)', fontFamily: "'Space Grotesk', sans-serif" }}>{value}</div>
+      <div style={{ fontSize: '24px', fontWeight: 700, color: 'var(--text-primary)', fontFamily: "'Manrope', sans-serif" }}>{value}</div>
       <div style={{ fontSize: '13px', color: 'var(--text-muted)', marginTop: '2px' }}>{label}</div>
     </div>
   </div>
@@ -73,7 +73,7 @@ const Dashboard = () => {
     <DashboardLayout activeMenu="Dashboard">
       <div style={{ padding: '32px 24px' }}>
         <div style={{ marginBottom: '32px' }}>
-          <h1 style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: '28px', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '6px' }}>My Drive</h1>
+          <h1 style={{ fontFamily: "'Manrope', sans-serif", fontSize: '28px', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '6px' }}>My Drive</h1>
           <p style={{ color: 'var(--text-secondary)', fontSize: '15px' }}>Upload, manage, and share your files securely</p>
         </div>
 
