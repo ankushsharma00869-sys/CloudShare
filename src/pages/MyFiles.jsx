@@ -1,7 +1,7 @@
 import React, { useState, useContext, useRef } from 'react'
 import apiEndPoints from "../Util/apiEndpoints.js";
 import DashboardLayout from '../layout/DashboardLayout';
-import { Grid, List, File, Globe, Lock, Copy, Download, FileIcon, Eye, Trash2, Image, Video, Music, FileText, Search, Sparkles, X } from 'lucide-react';
+import { Grid, List, File, Globe, Lock, Copy, Download, FileIcon, Eye, Trash2, Image, Video, Music, FileText, Search, Sparkles, X, Loader2 } from 'lucide-react';
 
 import axiosInstance from '../Util/axiosInstance';
 import toast from 'react-hot-toast';
@@ -10,6 +10,7 @@ import { useNavigate } from 'react-router-dom';
 import FileCard from '../component/FileCard';
 import ConfirmationDialog from '../component/ConfirmationDialog.jsx';
 import LinkShareModal from '../component/LinkShareModal.jsx';
+import FilePreviewModal from '../component/FilePreviewModal.jsx';
 import { UploadContext } from '../context/UploadContext';
 
 function MyFiles() {
@@ -21,6 +22,11 @@ function MyFiles() {
     const navigate = useNavigate();
   const [deleteConfirmation, setDeleteConfirmation] = useState({ isOpen: false, fileId: null });
   const [shareModal, setShareModal] = useState({ isOpen: false, fileId: null, link: "" });
+  const [previewFile, setPreviewFile] = useState(null);
+  // Per-file loading state, keyed by file id, so one file downloading/toggling
+  // doesn't disable the buttons on every other card in the grid/list.
+  const [downloadingIds, setDownloadingIds] = useState({});
+  const [togglingIds, setTogglingIds] = useState({});
 
   // 🤖 AI Feature: Smart File Search (semantic search) state
   const [searchQuery, setSearchQuery] = useState("");
@@ -84,23 +90,42 @@ function MyFiles() {
   }, [uploadJobs]);
 
   const togglePublic = async (fileToUpdate) => {
+    setTogglingIds(prev => ({ ...prev, [fileToUpdate.id]: true }));
     try {
-            await axiosInstance.patch(apiEndPoints.TOGGLE_FILE(fileToUpdate.id), {});
-      setFiles(prev => prev.map(f => f.id === fileToUpdate.id ? { ...f, isPublic: !f.isPublic } : f));
-      setAllFiles(prev => prev.map(f => f.id === fileToUpdate.id ? { ...f, isPublic: !f.isPublic } : f));
-    } catch (error) { toast.error('Error toggling file status'); }
+            const response = await axiosInstance.patch(apiEndPoints.TOGGLE_FILE(fileToUpdate.id), {});
+      // Use the backend's authoritative response instead of blindly flipping the
+      // local flag, so the UI can never drift from what was actually persisted.
+      const updated = response.data;
+      setFiles(prev => prev.map(f => f.id === fileToUpdate.id ? { ...f, ...updated } : f));
+      setAllFiles(prev => prev.map(f => f.id === fileToUpdate.id ? { ...f, ...updated } : f));
+      toast.success(updated?.isPublic ? 'File is now public' : 'File is now private');
+    } catch (error) {
+      toast.error(error.response?.data?.message || 'Error toggling file status');
+    } finally {
+      setTogglingIds(prev => { const next = { ...prev }; delete next[fileToUpdate.id]; return next; });
+    }
   };
 
   const handleDownload = async (file) => {
+    setDownloadingIds(prev => ({ ...prev, [file.id]: true }));
     try {
             const response = await axiosInstance.get(apiEndPoints.DOWNLOAD_FILE(file.id), { responseType: 'blob' });
       const url = window.URL.createObjectURL(new Blob([response.data]));
       const link = document.createElement("a");
       link.href = url; link.setAttribute("download", file.name); document.body.appendChild(link); link.click(); link.remove(); window.URL.revokeObjectURL(url);
-    } catch (error) { toast.error('Error downloading file'); }
+    } catch (error) {
+      if (error.response?.status === 403) {
+        toast.error("You don't have permission to download this file");
+      } else {
+        toast.error('Error downloading file');
+      }
+    } finally {
+      setDownloadingIds(prev => { const next = { ...prev }; delete next[file.id]; return next; });
+    }
   };
 
   const openShareModal = (fileId) => setShareModal({ isOpen: true, fileId, link: apiEndPoints.PUBLIC_VIEW_LINK(fileId) });
+  const openPreview = (file) => setPreviewFile(file);
 
   const handleDelete = async () => {
     const fileId = deleteConfirmation.fileId;
@@ -113,7 +138,7 @@ function MyFiles() {
         toast.success("File deleted");
         setDeleteConfirmation({ isOpen: false, fileId: null });
       }
-    } catch (error) { toast.error(error.message || "Error deleting file"); }
+    } catch (error) { toast.error(error.response?.data?.message || "Error deleting file"); }
   };
 
   useEffect(() => { fetchFiles(); }, []);
@@ -192,7 +217,19 @@ function MyFiles() {
           </div>
         ) : viewMode === "grid" ? (
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: '16px' }}>
-            {files.map(file => <FileCard key={file.id} file={file} onDelete={() => setDeleteConfirmation({ isOpen: true, fileId: file.id })} onTogglePublic={togglePublic} onDownload={handleDownload} onShareLink={openShareModal} />)}
+            {files.map(file => (
+              <FileCard
+                key={file.id}
+                file={file}
+                onDelete={() => setDeleteConfirmation({ isOpen: true, fileId: file.id })}
+                onTogglePublic={togglePublic}
+                onDownload={handleDownload}
+                onShareLink={openShareModal}
+                onPreview={openPreview}
+                downloading={!!downloadingIds[file.id]}
+                togglingPublic={!!togglingIds[file.id]}
+              />
+            ))}
           </div>
         ) : (
           <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: '20px', overflow: 'hidden' }}>
@@ -232,23 +269,40 @@ function MyFiles() {
                     <td style={{ padding: '14px 20px', fontSize: '13px', color: 'var(--text-secondary)', whiteSpace: 'nowrap' }}>{new Date(file.uploadedAt).toLocaleDateString()}</td>
                     <td style={{ padding: '14px 20px' }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                        <button onClick={() => togglePublic(file)} style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', border: 'none', borderRadius: '8px', padding: '5px 10px', fontSize: '12px', fontWeight: 500, cursor: 'pointer', transition: 'all 0.2s', background: file.isPublic ? 'var(--green-dim)' : 'var(--bg-elevated)', color: file.isPublic ? 'var(--green)' : 'var(--text-muted)' }}>
-                          {file.isPublic ? <><Globe size={13} />Public</> : <><Lock size={13} />Private</>}
+                        <button onClick={() => togglePublic(file)} disabled={!!togglingIds[file.id]} style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', border: 'none', borderRadius: '8px', padding: '5px 10px', fontSize: '12px', fontWeight: 500, cursor: togglingIds[file.id] ? 'not-allowed' : 'pointer', opacity: togglingIds[file.id] ? 0.6 : 1, transition: 'all 0.2s', background: file.isPublic ? 'var(--green-dim)' : 'var(--bg-elevated)', color: file.isPublic ? 'var(--green)' : 'var(--text-muted)' }}>
+                          {togglingIds[file.id] ? <Loader2 size={13} className="animate-spin" /> : file.isPublic ? <><Globe size={13} />Public</> : <><Lock size={13} />Private</>}
                         </button>
-                        {file.isPublic && (
-                          <button onClick={() => openShareModal(file.id)} style={{ display: 'inline-flex', alignItems: 'center', gap: '5px', border: 'none', borderRadius: '8px', padding: '5px 10px', fontSize: '12px', fontWeight: 500, cursor: 'pointer', background: 'var(--accent-dim)', color: 'var(--accent-bright)' }}>
-                            <Copy size={12} /> Share
-                          </button>
-                        )}
+                        <button onClick={() => file.isPublic ? openShareModal(file.id) : toast.error('Make this file public first to share it')} title={file.isPublic ? 'Share' : 'Make public to share'}
+                          style={{ display: 'inline-flex', alignItems: 'center', gap: '5px', border: 'none', borderRadius: '8px', padding: '5px 10px', fontSize: '12px', fontWeight: 500, cursor: file.isPublic ? 'pointer' : 'not-allowed', opacity: file.isPublic ? 1 : 0.45, background: 'var(--accent-dim)', color: 'var(--accent-bright)' }}>
+                          <Copy size={12} /> Share
+                        </button>
                       </div>
                     </td>
                     <td style={{ padding: '14px 20px' }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                        <button onClick={() => handleDownload(file)} title="Download"
+                        <button onClick={() => openPreview(file)} title="Preview"
                           style={{ padding: '7px', borderRadius: '8px', border: 'none', cursor: 'pointer', background: 'transparent', color: 'var(--text-muted)', transition: 'all 0.2s' }}
                           onMouseEnter={e => { e.currentTarget.style.background = 'var(--bg-elevated)'; e.currentTarget.style.color = '#60a5fa'; }}
                           onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = 'var(--text-muted)'; }}>
-                          <Download size={16} />
+                          <Eye size={16} />
+                        </button>
+                        <button onClick={() => handleDownload(file)} title="Download" disabled={!!downloadingIds[file.id]}
+                          style={{ padding: '7px', borderRadius: '8px', border: 'none', cursor: downloadingIds[file.id] ? 'not-allowed' : 'pointer', opacity: downloadingIds[file.id] ? 0.5 : 1, background: 'transparent', color: 'var(--text-muted)', transition: 'all 0.2s' }}
+                          onMouseEnter={e => { if (!downloadingIds[file.id]) { e.currentTarget.style.background = 'var(--bg-elevated)'; e.currentTarget.style.color = '#60a5fa'; } }}
+                          onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = 'var(--text-muted)'; }}>
+                          {downloadingIds[file.id] ? <Loader2 size={16} className="animate-spin" /> : <Download size={16} />}
+                        </button>
+                        <button
+                          onClick={() => {
+                            if (!file.isPublic) { toast.error('Make this file public first to copy a link'); return; }
+                            navigator.clipboard.writeText(`${window.location.origin}/file/${file.id}`);
+                            toast.success('Link copied!');
+                          }}
+                          title={file.isPublic ? 'Copy share link' : 'Make public to copy link'}
+                          style={{ padding: '7px', borderRadius: '8px', border: 'none', cursor: file.isPublic ? 'pointer' : 'not-allowed', opacity: file.isPublic ? 1 : 0.45, background: 'transparent', color: 'var(--text-muted)', transition: 'all 0.2s' }}
+                          onMouseEnter={e => { if (file.isPublic) { e.currentTarget.style.background = 'var(--bg-elevated)'; e.currentTarget.style.color = '#60a5fa'; } }}
+                          onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = 'var(--text-muted)'; }}>
+                          <Copy size={15} />
                         </button>
                         <button onClick={() => setDeleteConfirmation({ isOpen: true, fileId: file.id })} title="Delete"
                           style={{ padding: '7px', borderRadius: '8px', border: 'none', cursor: 'pointer', background: 'transparent', color: 'var(--text-muted)', transition: 'all 0.2s' }}
@@ -256,14 +310,6 @@ function MyFiles() {
                           onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = 'var(--text-muted)'; }}>
                           <Trash2 size={16} />
                         </button>
-                        {file.isPublic && (
-                          <a href={apiEndPoints.PUBLIC_VIEW_LINK(file.id)} target="_blank" rel="noreferrer"
-                            style={{ padding: '7px', borderRadius: '8px', display: 'flex', color: 'var(--text-muted)', transition: 'all 0.2s', textDecoration: 'none' }}
-                            onMouseEnter={e => { e.currentTarget.style.background = 'var(--bg-elevated)'; e.currentTarget.style.color = '#60a5fa'; }}
-                            onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = 'var(--text-muted)'; }}>
-                            <Eye size={16} />
-                          </a>
-                        )}
                       </div>
                     </td>
                   </tr>
@@ -275,6 +321,7 @@ function MyFiles() {
 
         <ConfirmationDialog isOpen={deleteConfirmation.isOpen} onClose={() => setDeleteConfirmation({ isOpen: false, fileId: null })} onConfirm={handleDelete} title="Delete File" message="Are you sure you want to delete this file? This action cannot be undone." confirmText="Delete" cancelText="Cancel" confirmationButtonClass="bg-red-600 hover:bg-red-700" />
         <LinkShareModal isOpen={shareModal.isOpen} onClose={() => setShareModal({ isOpen: false, fileId: null, link: "" })} link={shareModal.link} fileId={shareModal.fileId} />
+        <FilePreviewModal isOpen={!!previewFile} onClose={() => setPreviewFile(null)} file={previewFile} onDownload={handleDownload} />
       </div>
     </DashboardLayout>
   );
