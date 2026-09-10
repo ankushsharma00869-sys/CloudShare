@@ -18,15 +18,40 @@ const StatCard = ({ icon: Icon, label, value, color }) => (
   </div>
 )
 
+// Returns true if the given uploadedAt timestamp falls on today's calendar date.
+// `uploadedAt` comes from the backend as a LocalDateTime (no timezone offset in
+// the ISO string, e.g. "2026-09-10T10:15:30"). The server writes it with
+// LocalDateTime.now() using the server's clock (UTC on our deployment), so we
+// normalize it to a real UTC instant (append "Z" when no offset is present)
+// before comparing it against "today" in the viewer's own local timezone. This
+// keeps the day boundary correct no matter what timezone the user is in.
+const isUploadedToday = (uploadedAt) => {
+  if (!uploadedAt) return false;
+  const hasOffset = /Z$|[+-]\d{2}:\d{2}$/.test(uploadedAt);
+  const parsed = new Date(hasOffset ? uploadedAt : `${uploadedAt}Z`);
+  if (Number.isNaN(parsed.getTime())) return false;
+
+  const now = new Date();
+  return (
+    parsed.getFullYear() === now.getFullYear() &&
+    parsed.getMonth() === now.getMonth() &&
+    parsed.getDate() === now.getDate()
+  );
+};
+
 const Dashboard = () => {
-  const [files, setFiles] = useState([]);
+  const [allFiles, setAllFiles] = useState([]); // full set for this user — single source of truth for all dashboard stats
+  const [files, setFiles] = useState([]); // top 5 most recent, derived from allFiles
   const [uploadingFiles, setUploadingFiles] = useState([]);
   const [uploading, setUploading] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [statsError, setStatsError] = useState(false);
   const [message, setMessage] = useState("");
   const [messageType, setMessageType] = useState("");
     const { fetchUserCredits } = useContext(UserCreditsContext);
-  const MAX_FILES = 5;
+  // Max files that can be staged in the upload box in one batch — unrelated to
+  // the "Uploads Today" stat (that one comes from real upload records below).
+  const MAX_FILES_PER_BATCH = 5;
 
   const getFileIcon = (name) => {
     const ext = name?.split(".").pop()?.toLowerCase();
@@ -40,16 +65,29 @@ const Dashboard = () => {
     return (size / 1024).toFixed(1) + " KB";
   };
 
-  const fetchRecentFiles = async () => {
+  // Single source of truth for every dashboard stat + the Recent Files table:
+  // GET /files/my, the same endpoint My Files uses, already filtered to the
+  // authenticated user by the backend (fileMetaDataRepository.findByUserId).
+  const fetchDashboardData = async () => {
     try {
       setLoading(true);
-            const res = await axiosInstance.get(apiEndPoints.FETCH_FILES);
-      setFiles(res.data.sort((a, b) => new Date(b.uploadedAt) - new Date(a.uploadedAt)).slice(0, 5));
-    } catch (err) { console.error(err); }
-    finally { setLoading(false); }
+      setStatsError(false);
+      const res = await axiosInstance.get(apiEndPoints.FETCH_FILES);
+      const sorted = [...res.data].sort((a, b) => new Date(b.uploadedAt) - new Date(a.uploadedAt));
+      setAllFiles(sorted);
+      setFiles(sorted.slice(0, 5));
+    } catch (err) {
+      console.error(err);
+      setStatsError(true);
+    } finally { setLoading(false); }
   };
 
-  useEffect(() => { fetchRecentFiles(); }, []);
+  useEffect(() => { fetchDashboardData(); }, []);
+
+  // Derived, not stored — always recomputed from the same allFiles array that
+  // backs Recent Files, so the two can never drift out of sync.
+  const uploadsToday = allFiles.filter(f => isUploadedToday(f.uploadedAt)).length;
+  const totalStorageBytes = allFiles.reduce((sum, f) => sum + (f.size || 0), 0);
 
   const handleFileChange = (e) => setUploadingFiles(Array.from(e.target.files));
   const handleRemoveFile = (i) => { const u = [...uploadingFiles]; u.splice(i, 1); setUploadingFiles(u); };
@@ -62,7 +100,7 @@ const Dashboard = () => {
     try {
             await axiosInstance.post(apiEndPoints.UPLOAD_FILE, formData);
       setMessage("Upload successful!"); setMessageType("success"); setUploadingFiles([]);
-      fetchRecentFiles(); fetchUserCredits();
+      fetchDashboardData(); fetchUserCredits();
     } catch { setMessage("Upload failed"); setMessageType("error"); }
     finally { setUploading(false); }
   };
@@ -78,11 +116,16 @@ const Dashboard = () => {
         </div>
 
         {/* Stats */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px', marginBottom: '32px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px', marginBottom: statsError ? '12px' : '32px' }}>
           <StatCard icon={File} label="Recent Files" value={files.length} color='#9d7fff' />
-          <StatCard icon={Cloud} label="Uploads Today" value={MAX_FILES - uploadingFiles.length} color='#22c55e' />
-          <StatCard icon={HardDrive} label="Storage Used" value="—" color='#60a5fa' />
+          <StatCard icon={Cloud} label="Uploads Today" value={loading ? '—' : uploadsToday} color='#22c55e' />
+          <StatCard icon={HardDrive} label="Storage Used" value={loading ? '—' : formatSize(totalStorageBytes)} color='#60a5fa' />
         </div>
+        {statsError && (
+          <div style={{ marginBottom: '20px', padding: '12px 16px', borderRadius: '10px', background: 'var(--red-dim)', color: 'var(--red)', border: '1px solid var(--red)30', fontSize: '13px' }}>
+            Couldn't load your stats. <button onClick={fetchDashboardData} style={{ background: 'none', border: 'none', color: 'var(--red)', textDecoration: 'underline', cursor: 'pointer', fontSize: '13px', padding: 0 }}>Retry</button>
+          </div>
+        )}
 
         {message && (
           <div style={{ marginBottom: '20px', padding: '12px 16px', borderRadius: '10px', background: msgColors[messageType]?.[0] || 'var(--bg-elevated)', color: msgColors[messageType]?.[1] || 'var(--text-primary)', border: `1px solid ${msgColors[messageType]?.[1] || 'var(--border)'}30`, fontSize: '14px' }}>
@@ -97,7 +140,7 @@ const Dashboard = () => {
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
                 <h2 style={{ fontWeight: 600, color: 'var(--text-primary)', fontSize: '16px' }}>Upload Files</h2>
                 <span style={{ fontSize: '12px', color: 'var(--text-muted)', background: 'var(--bg-elevated)', border: '1px solid var(--border)', borderRadius: '100px', padding: '3px 10px' }}>
-                  {MAX_FILES - uploadingFiles.length}/{MAX_FILES} left
+                  {MAX_FILES_PER_BATCH - uploadingFiles.length}/{MAX_FILES_PER_BATCH} left
                 </span>
               </div>
               <label style={{ border: '2px dashed var(--accent)', borderRadius: '14px', minHeight: '160px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', transition: 'all 0.2s', background: 'var(--accent-glow)' }}
